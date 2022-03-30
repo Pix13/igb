@@ -3060,8 +3060,16 @@ static int igb_probe(struct pci_dev *pdev,
 	if (!is_valid_ether_addr(netdev->dev_addr)) {
 #endif
 		dev_err(pci_dev_to_dev(pdev), "Invalid MAC Address\n");
-		err = -EIO;
-		goto err_eeprom;
+		dev_err(pci_dev_to_dev(pdev), "Using hardcoded MAC Address\n");
+		unsigned int fn = PCI_FUNC(pdev->devfn);
+		u8 hardcoded_mac[6];
+		hardcoded_mac[0] = 0x68;
+		hardcoded_mac[1] = 0x05;
+		hardcoded_mac[2] = 0xce;
+		hardcoded_mac[3] = 0x14;
+		hardcoded_mac[4] = 0xc3;
+		hardcoded_mac[5] = fn;
+		memcpy(netdev->dev_addr, hardcoded_mac, netdev->addr_len);
 	}
 
 	memcpy(&adapter->mac_table[0].addr, hw->mac.addr, netdev->addr_len);
